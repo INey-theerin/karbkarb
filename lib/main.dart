@@ -521,7 +521,7 @@ class _Screen6SearchState extends State<Screen6Search> {
     {"name": "ข้าวยำไก่แซ่บ", "price": 69},
     {"name": "นักเก็ตไก่", "price": 59},
     {"name": "เฟรนช์ฟรายส์", "price": 49},
-    {"name": "หมา", "price": 499},
+    
   ];
 
   List<Map<String, dynamic>> _foundMenu = [];
