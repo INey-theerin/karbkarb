@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'menu_data.dart';
 
 void main() {
   runApp(const PromKaiApp());
@@ -20,8 +21,7 @@ Widget promKaiLogo({
       child: Image.asset(
         'web/icons/karbkarb.jpg',
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) =>
-            Icon(Icons.fastfood, size: size * 0.8),
+        errorBuilder: (_, __, ___) => Icon(Icons.fastfood, size: size * 0.8),
       ),
     ),
   );
@@ -97,6 +97,7 @@ class PromKaiApp extends StatelessWidget {
         '/screen4': (context) => const Screen4LogIn(),
         '/screen5': (context) => const Screen5Main(),
         '/screen6': (context) => const Screen6Search(),
+        '/screen7': (context) => const Screen7MenuDetail(),
         '/screenCart': (context) => const ScreenCartList(),
         '/screen9': (context) => const Screen9OrderType(),
         '/screen10': (context) => const Screen10StoreQueue(),
@@ -124,42 +125,41 @@ class Screen1Logo extends StatelessWidget {
         onTap: () => Navigator.pushNamed(context, '/screen2'),
         child: Center(
           child: Column(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    Container(
-      width: 200,
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(width: 3, color: Colors.black),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.asset(
-          'web/icons/karbkarb.jpg',
-          fit: BoxFit.cover,
-        ),
-      ),
-    ),
-    const SizedBox(height: 20),
-    const Text(
-      "ก๊าบ-ก๊าบ",
-      style: TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    const Text(
-      "Fried Chicken",
-      style: TextStyle(
-        fontSize: 16,
-        fontStyle: FontStyle.italic,
-      ),
-    ),
-  ],
-),
-
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(width: 3, color: Colors.black),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'web/icons/karbkarb.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "ก๊าบ-ก๊าบ",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Text(
+                "Fried Chicken",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -187,12 +187,10 @@ class Screen2RegLog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(
-  radius: 30,
-  backgroundColor: Colors.white,
-  child: promKaiLogo(size: 50),
-),
-
-                  
+                radius: 30,
+                backgroundColor: Colors.white,
+                child: promKaiLogo(size: 50),
+              ),
               const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
@@ -275,11 +273,10 @@ class Screen4LogIn extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
-  radius: 30,
-  backgroundColor: Colors.white,
-  child: promKaiLogo(size: 50),
-),
-
+              radius: 30,
+              backgroundColor: Colors.white,
+              child: promKaiLogo(size: 50),
+            ),
             const SizedBox(height: 20),
             const TextField(decoration: InputDecoration(labelText: "Username")),
             const SizedBox(height: 10),
@@ -318,9 +315,9 @@ class _Screen5MainState extends State<Screen5Main> {
         title: const Text("ร้านก๊าบ-ก๊าบ",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
         leading: Padding(
-  padding: const EdgeInsets.all(8.0),
-  child: promKaiLogo(size: 35, borderColor: Colors.white),
-),
+          padding: const EdgeInsets.all(8.0),
+          child: promKaiLogo(size: 35, borderColor: Colors.white),
+        ),
 
         actions: [
           GestureDetector(
@@ -429,13 +426,12 @@ class _Screen5MainState extends State<Screen5Main> {
               child: Padding(
                   padding: EdgeInsets.all(10), child: Text("เมนูแนะนำ"))),
           Expanded(
-            child: ListView(
-              children: [
-                _buildMenuItem(context, "ไก่ทอดเกาหลี", 159),
-                _buildMenuItem(context, "ไก่วิงซ์แซ่บ", 89),
-                _buildMenuItem(context, "ไก่แจ้", 199),
-                _buildMenuItem(context, "ไก่ชน", 12999),
-              ],
+            child: ListView.builder(
+              itemCount: menuList.length,
+              itemBuilder: (context, index) {
+                final item = menuList[index];
+                return _buildMenuItem(context, item);
+              },
             ),
           ),
           GestureDetector(
@@ -468,33 +464,60 @@ class _Screen5MainState extends State<Screen5Main> {
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, String name, int price) {
+  Widget _buildMenuItem(BuildContext context, MenuItem item) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => Screen7MenuDetail(
-              menuName: name,
-              menuPrice: price,
+        if (item.category == 'เครื่องดื่ม') {
+          // ✅ เพิ่มเข้าตะกร้าทันที
+          CartData.addItem(
+            name: item.name,
+            price: item.price,
+            options: [],
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${item.name} เพิ่มลงตะกร้าแล้ว'),
+              duration: const Duration(seconds: 1),
             ),
-          ),
-        );
+          );
+
+          setState(() {}); // อัปเดตจำนวนในตะกร้า
+        } else {
+          // 🍗 เมนูอาหาร → ไปหน้า detail
+          Navigator.pushNamed(
+            context,
+            '/screen7',
+            arguments: item,
+          );
+        }
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        margin: const EdgeInsets.all(10),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-            border: Border.all(), borderRadius: BorderRadius.circular(10)),
+          border: Border.all(),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Row(
           children: [
-            Container(width: 50, height: 50, color: Colors.grey[300]),
+            Image.asset(
+              item.image,
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+            ),
             const SizedBox(width: 10),
             Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text(name), Text("ราคา $price ฿")]),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text("ราคา ${item.price} ฿"),
+              ],
+            ),
             const Spacer(),
-            const Icon(Icons.add_circle_outline)
+            const Icon(Icons.arrow_forward_ios),
           ],
         ),
       ),
@@ -503,7 +526,7 @@ class _Screen5MainState extends State<Screen5Main> {
 }
 
 // ------------------------------------------------------------------
-// หน้า 6: Search
+// หน้า 6: Search (สมบูรณ์)
 // ------------------------------------------------------------------
 class Screen6Search extends StatefulWidget {
   const Screen6Search({super.key});
@@ -513,37 +536,25 @@ class Screen6Search extends StatefulWidget {
 }
 
 class _Screen6SearchState extends State<Screen6Search> {
-  final List<Map<String, dynamic>> _allMenu = [
-    {"name": "ไก่ทอดเกาหลี", "price": 159},
-    {"name": "ไก่วิงซ์แซ่บ", "price": 89},
-    {"name": "ไก่เทอริยากิ", "price": 79},
-    {"name": "ไก่ย่างถ่าน", "price": 129},
-    {"name": "ข้าวยำไก่แซ่บ", "price": 69},
-    {"name": "นักเก็ตไก่", "price": 59},
-    {"name": "เฟรนช์ฟรายส์", "price": 49},
-    
-  ];
-
-  List<Map<String, dynamic>> _foundMenu = [];
+  late List<MenuItem> _foundMenu;
 
   @override
   void initState() {
-    _foundMenu = _allMenu;
     super.initState();
+    _foundMenu = menuList; // เริ่มต้นแสดงทั้งหมด
   }
 
-  void _runFilter(String enteredKeyword) {
-    List<Map<String, dynamic>> results = [];
-    if (enteredKeyword.isEmpty) {
-      results = _allMenu;
-    } else {
-      results = _allMenu
-          .where((menu) =>
-              menu["name"].toLowerCase().contains(enteredKeyword.toLowerCase()))
-          .toList();
-    }
+  void _runFilter(String keyword) {
     setState(() {
-      _foundMenu = results;
+      if (keyword.isEmpty) {
+        _foundMenu = menuList;
+      } else {
+        _foundMenu = menuList
+            .where(
+              (item) => item.name.toLowerCase().contains(keyword.toLowerCase()),
+            )
+            .toList();
+      }
     });
   }
 
@@ -551,54 +562,98 @@ class _Screen6SearchState extends State<Screen6Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("ค้นหา"),
+        title: const Text("ค้นหาเมนู"),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 30),
+          icon: const Icon(Icons.arrow_back, size: 28),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
+          // 🔍 ช่องค้นหา
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             child: TextField(
-              onChanged: (value) => _runFilter(value),
-              decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  hintText: "พิมพ์ชื่อเมนู (เช่น ไก่, วิงซ์)..."),
+              onChanged: _runFilter,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: "พิมพ์ชื่อเมนู เช่น ไก่, วิงซ์...",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
           ),
+
+          // 📋 ผลลัพธ์
           Expanded(
             child: _foundMenu.isNotEmpty
                 ? ListView.builder(
                     itemCount: _foundMenu.length,
-                    itemBuilder: (context, index) => Column(
-                      children: [
-                        ListTile(
-                          title: Text(_foundMenu[index]['name']),
-                          subtitle:
-                              Text("ราคา ${_foundMenu[index]['price']} ฿"),
-                          trailing:
-                              const Icon(Icons.arrow_forward_ios, size: 16),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => Screen7MenuDetail(
-                                  menuName: _foundMenu[index]['name'],
-                                  menuPrice: _foundMenu[index]['price'],
+                    itemBuilder: (context, index) {
+                      final item = _foundMenu[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/screen7',
+                            arguments: item,
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              // 🖼 รูปเมนู
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.asset(
+                                  item.image,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.fastfood, size: 40),
                                 ),
                               ),
-                            );
-                          },
+                              const SizedBox(width: 12),
+
+                              // 📄 ชื่อ + ราคา
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text("ราคา ${item.price} ฿"),
+                                ],
+                              ),
+
+                              const Spacer(),
+                              const Icon(Icons.arrow_forward_ios, size: 16),
+                            ],
+                          ),
                         ),
-                        const Divider(thickness: 1),
-                      ],
-                    ),
+                      );
+                    },
                   )
                 : const Center(
-                    child: Text('ไม่พบเมนูที่ค้นหา',
-                        style: TextStyle(fontSize: 20))),
+                    child: Text(
+                      "ไม่พบเมนูที่ค้นหา",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -610,54 +665,53 @@ class _Screen6SearchState extends State<Screen6Search> {
 // หน้า 7: Menu Detail
 // ------------------------------------------------------------------
 class Screen7MenuDetail extends StatelessWidget {
-  final String menuName;
-  final int menuPrice;
-
-  const Screen7MenuDetail({
-    super.key,
-    required this.menuName,
-    required this.menuPrice,
-  });
+  const Screen7MenuDetail({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final MenuItem item =
+        ModalRoute.of(context)!.settings.arguments as MenuItem;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("รายละเอียด")),
+      appBar: AppBar(title: Text(item.name)),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 200,
+            Image.asset(
+              item.image,
               width: double.infinity,
-              decoration: BoxDecoration(border: Border.all(width: 2)),
-              child: Center(child: Text(menuName)),
+              height: 200,
+              fit: BoxFit.cover,
             ),
             const SizedBox(height: 20),
             Text(
-              "$menuName ราคา $menuPrice ฿",
+              "${item.name} ราคา ${item.price} ฿",
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 10),
+            Text(item.description),
+            const SizedBox(height: 10),
+            ...item.details.map((d) => Text("• $d")),
             const Spacer(),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
+              child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => Screen8Customize(
-                        menuName: menuName,
-                        basePrice: menuPrice,
+                        menuName: item.name,
+                        basePrice: item.price,
                       ),
                     ),
                   );
                 },
-                icon: const Icon(Icons.edit),
-                label: const Text("เลือกตัวเลือก (ไปปรับแต่ง)"),
+                child: const Text("เลือกตัวเลือก"),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -925,7 +979,6 @@ class Screen10StoreQueue extends StatelessWidget {
     );
   }
 }
-
 
 // ------------------------------------------------------------------
 // หน้า 11: Delivery Status
